@@ -84,4 +84,22 @@ public class NotificationsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var meId = GetMeId();
+        if (meId == 0) return Unauthorized();
+
+        var n = await _db.Notifications
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == meId);
+
+        if (n == null)
+            return NotFound();
+
+        _db.Notifications.Remove(n);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
