@@ -35,7 +35,8 @@ public class TasksController : ControllerBase
         assignedUserId = t.AssignedUserId,
         assignedUserName = t.AssignedUser == null ? null : t.AssignedUser.Name,
         createdAt = t.CreatedAt,
-        dueDate = t.DueDate
+        dueDate = t.DueDate,
+        completedAt = t.CompletedAt,
     };
 
     [HttpGet("project/{projectId:int}")]
@@ -176,6 +177,17 @@ public class TasksController : ControllerBase
 
         var oldStatus = task.Status;
         task.Status = dto.Status;
+
+        if (dto.Status == "Done" && oldStatus != "Done")
+        {
+            task.CompletedAt = DateTime.UtcNow;
+        }
+
+        if (oldStatus == "Done" && dto.Status != "Done")
+        {
+            task.CompletedAt = null;
+        }
+
         await _context.SaveChangesAsync();
 
         if (task.AssignedUserId.HasValue && oldStatus != dto.Status)

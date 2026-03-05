@@ -75,26 +75,23 @@ public class DashboardController : ControllerBase
         });
         var start = DateTime.UtcNow.Date.AddDays(-6); 
         var end = DateTime.UtcNow.Date.AddDays(1);
+        var completedQuery = taskQuery
+            .Where(t => t.Status == "Done"
+                && t.CompletedAt != null
+                && t.CompletedAt.Value >= start
+                && t.CompletedAt.Value < end);
 
-        var doneLogsQuery =
-            from log in _context.ActivityLogs
-            join t in _context.Tasks on log.EntityId equals t.Id
-            where log.EntityType == "Task"
-                  && log.Action.Contains("Updated Task Status -> Done")
-                  && log.Timestamp >= start && log.Timestamp < end
-            select new { log.Timestamp, t.AssignedUserId };
-
-        if (role == "Junior")
-            doneLogsQuery = doneLogsQuery.Where(x => x.AssignedUserId == userId);
-
-        var doneLogs = await doneLogsQuery.ToListAsync();
+        var doneByDay = await completedQuery
+            .GroupBy(t => t.CompletedAt!.Value.Date)
+            .Select(g => new { day = g.Key, count = g.Count() })
+            .ToListAsync();
 
         var completedLast7Days = Enumerable.Range(0, 7)
             .Select(i => start.AddDays(i))
             .Select(day => new
             {
                 date = day.ToString("yyyy-MM-dd"),
-                completed = doneLogs.Count(x => x.Timestamp.Date == day.Date)
+                completed = doneByDay.FirstOrDefault(x => x.day == day)?.count ?? 0
             })
             .ToList();
 
@@ -140,27 +137,23 @@ public class DashboardController : ControllerBase
 
         var start = DateTime.UtcNow.Date.AddDays(-6);
         var end = DateTime.UtcNow.Date.AddDays(1);
+        var completedQuery = taskQuery
+            .Where(t => t.Status == "Done"
+                && t.CompletedAt != null
+                && t.CompletedAt.Value >= start
+                && t.CompletedAt.Value < end);
 
-        var doneLogsQuery =
-            from log in _context.ActivityLogs
-            join t in _context.Tasks on log.EntityId equals t.Id
-            where log.EntityType == "Task"
-                  && log.Action.Contains("Updated Task Status -> Done")
-                  && log.Timestamp >= start && log.Timestamp < end
-                  && t.ProjectId == projectId
-            select new { log.Timestamp, t.AssignedUserId };
-
-        if (role == "Junior")
-            doneLogsQuery = doneLogsQuery.Where(x => x.AssignedUserId == userId);
-
-        var doneLogs = await doneLogsQuery.ToListAsync();
+        var doneByDay = await completedQuery
+            .GroupBy(t => t.CompletedAt!.Value.Date)
+            .Select(g => new { day = g.Key, count = g.Count() })
+            .ToListAsync();
 
         var completedLast7Days = Enumerable.Range(0, 7)
             .Select(i => start.AddDays(i))
             .Select(day => new
             {
                 date = day.ToString("yyyy-MM-dd"),
-                completed = doneLogs.Count(x => x.Timestamp.Date == day.Date)
+                completed = doneByDay.FirstOrDefault(x => x.day == day)?.count ?? 0
             })
             .ToList();
 
