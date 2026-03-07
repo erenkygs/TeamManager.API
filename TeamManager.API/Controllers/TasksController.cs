@@ -31,6 +31,7 @@ public class TasksController : ControllerBase
         title = t.Title,
         description = t.Description,
         status = t.Status,
+        priority = t.Priority,
         projectId = t.ProjectId,
         assignedUserId = t.AssignedUserId,
         assignedUserName = t.AssignedUser == null ? null : t.AssignedUser.Name,
@@ -65,11 +66,13 @@ public class TasksController : ControllerBase
                 title = t.Title,
                 description = t.Description,
                 status = t.Status,
+                priority = t.Priority,
                 projectId = t.ProjectId,
                 assignedUserId = t.AssignedUserId,
                 assignedUserName = t.AssignedUser == null ? null : t.AssignedUser.Name,
                 createdAt = t.CreatedAt,
-                dueDate = t.DueDate
+                dueDate = t.DueDate,
+                completedAt = t.CompletedAt
             })
             .ToListAsync();
 
@@ -88,6 +91,12 @@ public class TasksController : ControllerBase
         if (!projectExists)
             return BadRequest("Invalid ProjectId.");
 
+        var priority = string.IsNullOrWhiteSpace(dto.Priority) ? "Medium" : dto.Priority.Trim();
+        var allowedPriorities = new[] { "Low", "Medium", "High", "Critical" };
+
+        if (!allowedPriorities.Contains(priority))
+            return BadRequest("Invalid priority.");
+
         DateTime? dueUtc = null;
         if (dto.DueDate.HasValue)
         {
@@ -102,6 +111,7 @@ public class TasksController : ControllerBase
             Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
             ProjectId = dto.ProjectId,
             Status = "Todo",
+            Priority = priority,
             AssignedUserId = null,
             CreatedAt = DateTime.UtcNow,
             DueDate = dueUtc
@@ -215,4 +225,3 @@ public class TasksController : ControllerBase
         return NoContent();
     }
 }
-

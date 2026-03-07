@@ -6,7 +6,7 @@ public class TaskItem
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
 
-    public string Status { get; set; } = "Todo"; // Todo / Doing / Done
+    public string Status { get; set; } = "Todo"; 
 
     public int ProjectId { get; set; }
     public Project Project { get; set; } = null!;
@@ -18,4 +18,6 @@ public class TaskItem
     public DateTime? DueDate { get; set; }
 
     public DateTime? CompletedAt { get; set; }
+
+    public string Priority { get; set; } = "Medium";
 }

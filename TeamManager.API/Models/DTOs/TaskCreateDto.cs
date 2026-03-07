@@ -13,4 +13,6 @@ public class TaskCreateDto
     public int ProjectId { get; set; }
 
     public DateTime? DueDate { get; set; }
+
+    public string Priority { get; set; } = "Medium";
 }
