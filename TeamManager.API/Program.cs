@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using TeamManager.API.Data;
+using TeamManager.API.Models;
 using TeamManager.API.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -71,7 +72,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("dev", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -79,6 +80,24 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+// Veritabanında hiç kullanıcı yoksa ilk admin'i otomatik oluştur
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    if (!db.Users.Any())
+    {
+        db.Users.Add(new User
+        {
+            Name = "Admin",
+            Email = "admin@teammanager.com",
+            PasswordHash = global::BCrypt.Net.BCrypt.HashPassword("admin123"),
+            Role = "Admin"
+        });
+        db.SaveChanges();
+        Console.WriteLine(">> Seed admin oluşturuldu: admin@teammanager.com / admin123");
+    }
+}
 
 app.UseCors("dev");
 

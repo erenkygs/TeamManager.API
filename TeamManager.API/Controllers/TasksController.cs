@@ -40,6 +40,38 @@ public class TasksController : ControllerBase
         completedAt = t.CompletedAt,
     };
 
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyTasks()
+    {
+        var userIdClaim = User.FindFirst("UserId")?.Value;
+        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var tasks = await _context.Tasks
+            .Where(t => t.AssignedUserId == userId)
+            .Include(t => t.Project)
+            .AsNoTracking()
+            .OrderBy(t => t.DueDate == null ? 1 : 0)
+            .ThenBy(t => t.DueDate)
+            .ThenByDescending(t => t.Id)
+            .Select(t => new
+            {
+                id = t.Id,
+                title = t.Title,
+                description = t.Description,
+                status = t.Status,
+                priority = t.Priority,
+                projectId = t.ProjectId,
+                projectName = t.Project.Name,
+                dueDate = t.DueDate,
+                completedAt = t.CompletedAt,
+                createdAt = t.CreatedAt
+            })
+            .ToListAsync();
+
+        return Ok(tasks);
+    }
+
     [HttpGet("project/{projectId:int}")]
     public async Task<IActionResult> GetByProject(int projectId)
     {
