@@ -105,6 +105,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("change-password")]
+    [Authorize]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordPublicDto dto)
     {
         dto.Email = dto.Email.Trim().ToLower();

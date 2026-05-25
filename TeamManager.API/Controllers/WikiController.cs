@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using TeamManager.API.Data;
 using TeamManager.API.Models;
@@ -109,6 +110,9 @@ public class WikiController : ControllerBase
 
 public class WikiArticleDto
 {
+    [Required, MinLength(1), MaxLength(200)]
     public string Title { get; set; } = null!;
+
+    [Required, MinLength(1)]
     public string Content { get; set; } = null!;
 }

@@ -31,7 +31,7 @@ public class SessionsController : ControllerBase
                 s.UserId,
                 UserName = s.User.Name ?? s.User.Email,
                 Date = s.LoginAt.Date,
-                Minutes = (int)((s.LogoutAt ?? (s.LoginAt.Date < now.Date ? s.LoginAt.Date.AddDays(1) : now)) - s.LoginAt).TotalMinutes
+                Minutes = (int)((s.LogoutAt ?? (s.LoginAt.AddHours(8) < now ? s.LoginAt.AddHours(8) : now)) - s.LoginAt).TotalMinutes
             })
             .GroupBy(x => new { x.UserId, x.UserName, x.Date })
             .Select(g => new

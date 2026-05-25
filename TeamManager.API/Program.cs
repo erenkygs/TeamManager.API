@@ -81,6 +81,17 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.Use(async (ctx, next) =>
+{
+    try { await next(); }
+    catch (Exception ex)
+    {
+        ctx.Response.StatusCode = 500;
+        ctx.Response.ContentType = "application/json";
+        await ctx.Response.WriteAsJsonAsync(new { error = "Sunucu hatası." });
+    }
+});
+
 // Veritabanında hiç kullanıcı yoksa ilk admin'i otomatik oluştur
 using (var scope = app.Services.CreateScope())
 {

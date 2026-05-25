@@ -102,9 +102,7 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var meIdClaim = User.Claims.FirstOrDefault(c => c.Type.EndsWith("/nameidentifier"))?.Value
-                        ?? User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value
-                        ?? User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+        var meIdClaim = User.FindFirstValue("UserId");
 
         if (int.TryParse(meIdClaim, out var meId) && meId == id)
             return BadRequest("Kendi hesabını silemezsin.");
