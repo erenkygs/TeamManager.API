@@ -72,8 +72,27 @@ public class AuthController : ControllerBase
 
         var token = _authService.CreateToken(user);
 
-        return Ok(new { token });
+        var session = new UserSession { UserId = user.Id, LoginAt = DateTime.UtcNow };
+        _context.UserSessions.Add(session);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { token, sessionId = session.Id });
     }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout([FromBody] LogoutDto dto)
+    {
+        var session = await _context.UserSessions.FirstOrDefaultAsync(s => s.Id == dto.SessionId);
+        if (session != null && session.LogoutAt == null)
+        {
+            session.LogoutAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+        return NoContent();
+    }
+
+    public class LogoutDto { public int SessionId { get; set; } }
 
     public class ChangePasswordPublicDto
     {

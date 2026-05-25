@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
 
     public DbSet<TaskComment> TaskComments => Set<TaskComment>();
+    public DbSet<UserSession> UserSessions => Set<UserSession>();
+    public DbSet<WikiArticle> WikiArticles => Set<WikiArticle>();
 
 
 }
