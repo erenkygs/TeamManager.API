@@ -92,6 +92,13 @@ app.Use(async (ctx, next) =>
     }
 });
 
+// Bekleyen migration'ları otomatik uygula
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 // Veritabanında hiç kullanıcı yoksa ilk admin'i otomatik oluştur
 using (var scope = app.Services.CreateScope())
 {
