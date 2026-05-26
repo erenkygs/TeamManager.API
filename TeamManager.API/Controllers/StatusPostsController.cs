@@ -43,7 +43,7 @@ public class StatusPostsController : ControllerBase
         if (string.IsNullOrEmpty(msg) || msg.Length > 120)
             return BadRequest("Mesaj 1-120 karakter arasında olmalı.");
 
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = int.Parse(User.FindFirstValue("UserId")!);
 
         var post = new StatusPost { UserId = userId, Message = msg, CreatedAt = DateTime.UtcNow };
         _context.StatusPosts.Add(post);
@@ -63,7 +63,7 @@ public class StatusPostsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = int.Parse(User.FindFirstValue("UserId")!);
         var role = User.FindFirstValue(ClaimTypes.Role) ?? "";
 
         var post = await _context.StatusPosts.FindAsync(id);
