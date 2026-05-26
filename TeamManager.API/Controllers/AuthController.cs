@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using TeamManager.API.Data;
 using TeamManager.API.Models;
 using TeamManager.API.Models.DTOs;
@@ -93,6 +94,17 @@ public class AuthController : ControllerBase
     }
 
     public class LogoutDto { public int SessionId { get; set; } }
+
+    [HttpPost("start-session")]
+    [Authorize]
+    public async Task<IActionResult> StartSession()
+    {
+        var userId = int.Parse(User.FindFirstValue("UserId")!);
+        var session = new UserSession { UserId = userId, LoginAt = DateTime.UtcNow };
+        _context.UserSessions.Add(session);
+        await _context.SaveChangesAsync();
+        return Ok(new { sessionId = session.Id });
+    }
 
     public class ChangePasswordPublicDto
     {
