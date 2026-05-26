@@ -45,6 +45,9 @@ public class StatusPostsController : ControllerBase
 
         var userId = int.Parse(User.FindFirstValue("UserId")!);
 
+        var existing = await _context.StatusPosts.Where(p => p.UserId == userId).ToListAsync();
+        _context.StatusPosts.RemoveRange(existing);
+
         var post = new StatusPost { UserId = userId, Message = msg, CreatedAt = DateTime.UtcNow };
         _context.StatusPosts.Add(post);
         await _context.SaveChangesAsync();
