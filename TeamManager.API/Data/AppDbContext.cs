@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<TaskComment> TaskComments => Set<TaskComment>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();
     public DbSet<StatusPost> StatusPosts => Set<StatusPost>();
+    public DbSet<KnowledgeItem> KnowledgeItems => Set<KnowledgeItem>();
 
 
 }
